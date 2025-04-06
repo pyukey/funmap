@@ -1,0 +1,39 @@
+            ]});
+            document.getElementById('remove-edge-btn').addEventListener('click', function () {
+                const selectedEdges = la.edges(':selected');
+                if (selectedEdges.length === 0) {
+                    alert('No edge selected!');
+                    return;
+                }
+                selectedEdges.remove();
+            });
+            document.getElementById('add-edge-btn').addEventListener('click', function () {
+                const selectedNodes = la.nodes(':selected');
+                if (selectedNodes.length !== 2) {
+                    alert('Please select exactly 2 nodes.');
+                    return;
+                }
+ 
+                const source = selectedNodes[0].id();
+                const target = selectedNodes[1].id();
+ 
+                const edgeId = 'connect_' + target + '_to_' + source;
+ 
+                if (la.getElementById(edgeId).length > 0) {
+                    alert('Edge already exists.');
+                    return
+                }
+ 
+                la.add({
+                    group: 'edges',
+                    data: {
+                        id: edgeId,
+                        source: source,
+                        target: target
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
+ 

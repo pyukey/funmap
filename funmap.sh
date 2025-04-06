@@ -1,22 +1,22 @@
 #!/bin/bash
 ./install.sh
-
+ 
 path="$(pwd)"
-
+ 
 if [ -f pass.txt ]; then
   rm pass.txt
 fi
-
+ 
 if [ -f users.txt ]; then
   rm users.txt
 fi
-
+ 
 if [ -d fun ]; then
   rm -rf fun
 fi
 mkdir fun
 cd fun
-
+ 
 crack() {
   ip="$1"
   put="$(sshpass -p pass ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no user@$1 'hostname; uname -a' 2>&1 | grep 'Connection')"
@@ -72,9 +72,9 @@ crack() {
       fi
     done < "$path/pass.txt"
   done < "$path/users.txt"
-
+ 
 }
-
+ 
 read -p "Enter default user: " user
 while true; do
   if [ "$user" = "done" ]; then
@@ -84,7 +84,7 @@ while true; do
   fi
   read -p "Enter default user. [Type done to stop]: " user
 done
-
+ 
 read -p "Enter default password: " pass
 while true; do
   if [ "$pass" = "done" ]; then
@@ -94,7 +94,7 @@ while true; do
   fi
   read -p "Enter default password. [Type done to stop]: " pass
 done
-
+ 
 regex='^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2])$'
 read -p "Enter a subnet to scan: " sub
 while [[ $sub =~ $regex ]]; do
@@ -113,39 +113,39 @@ while read -r sub; do
   done < hosts.txt
   cd ..
 done < subnets
-
+ 
 echo "Let's go!"
-
+ 
 cat ../index.template.html > ../index.html
 ybase=25
 while read -r sub; do
   subStart=${sub%%/*}
   cd "$subStart"
   sort hosts.txt > hosts.tmp.txt && cp hosts.tmp.txt hosts.txt
-
+ 
   router=$(head -1 hosts.tmp.txt | xargs)
   echo "$router"
-
+ 
   lines=$(wc -l < hosts.tmp.txt)
   ((lines -= 2))
-
+ 
   sed -i "s/$/ unknown Windows/" hosts.txt && \
-
+ 
   while read -r ip; do
     crack "$ip"
   done < "hosts.tmp.txt"
-
+ 
   xbase=0
   ycur=$ybase
-
+ 
   count=0
-
+ 
   while read -r ip hostname distro; do
     if [ "$ip" = "$router" ]; then
-      echo "{ data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
     else
-      echo "{ data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
-      echo "{ data: { id: \"connect.$ip\", source: \"$router\", target: \"$ip\" } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
+      echo "                { data: { id: \"connect_$ip\", source: \"$router\", target: \"$ip\" } }," >> ../../index.html
       ((count += 1))
       if [ "$count" -eq 8 ]; then
         count=0
@@ -165,7 +165,4 @@ while read -r sub; do
   ((ybase += 10))
 done < subnets
 cd ..
-echo "]});" >> index.html
-echo "</script>" >> index.html
-echo "</body>" >> index.html
-echo "</html>" >> index.html
+cat index.end.html >> index.html

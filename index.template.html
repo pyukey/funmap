@@ -17,19 +17,15 @@
 </head>
 <body>
     <header>
-        <div class="logo">
-            <img id="pog" src="gfx/pogchamp-twitch-own3d.png">
-        </div>
-        <form>
-            <div class="search">
-                <span class="search-icon material-symbols-outlined">search</span>
-                <input class="search-input" type="search" placeholder="Search">
-                <div id="autocomplete-list" class="autocomplete-list"></div>
-            </div>
-        </form>
- 
     </header>
     <main>
+        <div class="toggle">
+            <div class="toggle-options">
+                <div class="clickable" id="remove-edge-btn">Remove Edge</div>
+                <div class="sep-line"></div>
+                <div class="clickable" id="add-edge-btn">Add Edge</div>
+            </div>
+        </div>
         <div class="bulk">
             <div class="graph" id="network"></div>
             <div class="info-box right smol" id="repo">
@@ -71,29 +67,42 @@
                         'text-halign': 'center',
                         'color': '#000000',
                         'text-wrap': 'wrap',
-			'text-background-color': 'white',
-			'text-background-opacity': 1,
+                        'text-background-color': 'white',
+                        'text-background-opacity': 1,
                         'font-size': 2,
-			'width': 13,
-			'height': 13
+                        'width': 13,
+                        'height': 13
                     }
                 },
-		{
-		    selector: '.router',
-		    style: {
-			'font-size': 3,
-			'width': 18,
-			'height': 18
-		    }
-		},
-		{
-		    selector: 'edge',
-		    style: {
-			'width': 1
-		    }
-		}
+                {
+                    selector: 'node:selected',
+                    style: {
+                        'background-color': '#A6FFB0'
+                    }
+                },
+                {
+                    selector: '.defaultCreds',
+                    style: {
+                        'background-color': '#FFA6A6'
+                    }
+                },
+                {
+                    selector: '.router',
+                    style: {
+                        'font-size': 3,
+                        'width': 18,
+                        'height': 18
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 1
+                    }
+                }
             ],
             layout: {
                 name: 'preset'
             },
             elements: [
+ 
