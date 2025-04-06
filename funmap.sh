@@ -1,4 +1,6 @@
 #!/bin/bash
+./install.sh
+
 path="$(pwd)"
 
 if [ -f pass.txt ]; then
