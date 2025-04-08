@@ -72,9 +72,18 @@ crack() {
       fi
     done < "$path/pass.txt"
   done < "$path/users.txt"
- 
 }
- 
+
+makeJSON() {
+  echo "{\n  \"properties\": {\n    \"ip\": $1,\n    \"hostname\": $2,\n    \"distro\": $3\n  },\n  \"services\": {"
+  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": "$3",\n      \"port\": "$1",\n      \"version\": "$4"\n    },"}'
+  if grep "$1:" crack.txt; then
+    echo "  },\n  \"defaultCreds\": {"
+    grep "$1:" crack.txt | awk -F: '{print "    \"user\": "$2",\n    \"pass\": "$3}'
+  fi
+  echo "  }\n}"
+}
+
 read -p "Enter default user: " user
 while true; do
   if [ "$user" = "done" ]; then
@@ -109,7 +118,8 @@ while read -r sub; do
   sed -i -E 's/^(\S+)\s+.(.*).$/\2 /' hosts.txt
   while read -r host; do
     ip=$(echo "$host" | awk '{print $1}')
-    nmap -sS -sV "$ip" > "$ip" 2>/dev/null &
+    mkdir "$ip"
+    nmap -sS -sV "$ip" > "$ip/nmap.txt" 2>/dev/null &
   done < hosts.txt
   cd ..
 done < subnets
@@ -141,10 +151,11 @@ while read -r sub; do
   count=0
  
   while read -r ip hostname distro; do
+    makeJSON "$ip" "$hostname" "$distro" > "$ip/data.json"
     if [ "$ip" = "$router" ]; then
-      echo "                { data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
     else
-      echo "                { data: { id: \"$ip\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
       echo "                { data: { id: \"connect_$ip\", source: \"$router\", target: \"$ip\" } }," >> ../../index.html
       ((count += 1))
       if [ "$count" -eq 8 ]; then

@@ -34,12 +34,13 @@
                 });
             });
             this.la.on('click', 'node', function (e) {
-                document.getElementById("ipDesc").textContent = this.data().id
-                document.getElementById("hostnameDesc").textContent = this.data().hostname
-                document.getElementById("distroDesc").textContent = this.data().distro
-		fetch("ip.json")
+		const path = this.data().sub + "/" + this.data().id + "/data.json"
+		fetch(path)
 		  .then(response => response.json())
 		  .then(json => {
+                    document.getElementById("ipDesc").textContent = json['properties']['ip']
+                    document.getElementById("hostnameDesc").textContent = json['properties']['hostname']
+                    document.getElementById("distroDesc").textContent = json['properties']['distro']
 		    document.getElementById("userDesc").textContent = json['defaultCreds']['user'];
 		    document.getElementById("passDesc").textContent = json['defaultCreds']['passwd'];
 		    
