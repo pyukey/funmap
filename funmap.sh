@@ -64,7 +64,7 @@ crack() {
         elif echo "$uname" | grep -qi dragonfly; then
           distro="DragonFly"
         else
-          distro="Windows"
+          distro="WindowsXP"
         fi
         echo "$ip : $name : $distro" >> crack.txt
         sed -i "/$ip/s/ unknown Windows/ $name $distro/" hosts.txt
@@ -129,7 +129,7 @@ while read -r sub; do
   lines=$(wc -l < hosts.tmp.txt)
   ((lines -= 2))
  
-  sed -i "s/$/ unknown Windows/" hosts.txt && \
+  sed -i "s/$/ unknown WindowsXP/" hosts.txt && \
  
   while read -r ip; do
     crack "$ip"
