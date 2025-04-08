@@ -75,13 +75,15 @@ crack() {
 }
 
 makeJSON() {
-  echo "{\n  \"properties\": {\n    \"ip\": $1,\n    \"hostname\": $2,\n    \"distro\": $3\n  },\n  \"services\": {"
-  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": "$3",\n      \"port\": "$1",\n      \"version\": "$4"\n    },"}'
+  printf "{\n  \"properties\": {\n    \"ip\": \"$1\",\n    \"hostname\": \"$2\",\n    \"distro\": \"$3\"\n  },\n  \"services\": {\n"
+  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
+    printf "  },\n  \"defaultCreds\": {\n"
   if grep "$1:" crack.txt; then
-    echo "  },\n  \"defaultCreds\": {"
-    grep "$1:" crack.txt | awk -F: '{print "    \"user\": "$2",\n    \"pass\": "$3}'
+    grep "$1:" crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"pass\": \""$3"\""}'
+  else
+    printf "    \"user\": N/A,\n    \"pass\": N/A"
   fi
-  echo "  }\n}"
+  printf "  }\n}"
 }
 
 read -p "Enter default user: " user

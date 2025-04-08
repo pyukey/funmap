@@ -34,7 +34,7 @@
                 });
             });
             this.la.on('click', 'node', function (e) {
-		const path = this.data().sub + "/" + this.data().id + "/data.json"
+		const path = "fun/" + this.data().sub + "/" + this.data().id + "/data.json"
 		fetch(path)
 		  .then(response => response.json())
 		  .then(json => {
