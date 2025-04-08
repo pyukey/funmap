@@ -1,4 +1,4 @@
-            ]});
+	    ]});
             document.getElementById('remove-edge-btn').addEventListener('click', function () {
                 const selectedEdges = la.edges(':selected');
                 if (selectedEdges.length === 0) {
@@ -33,7 +33,33 @@
                     }
                 });
             });
+            this.la.on('click', 'node', function (e) {
+                document.getElementById("ipDesc").textContent = this.data().id
+                document.getElementById("hostnameDesc").textContent = this.data().hostname
+                document.getElementById("distroDesc").textContent = this.data().distro
+		fetch("ip.json")
+		  .then(response => response.json())
+		  .then(json => {
+		    document.getElementById("userDesc").textContent = json['defaultCreds']['user'];
+		    document.getElementById("passDesc").textContent = json['defaultCreds']['passwd'];
+		    
+		    const ul = document.getElementById("servicesDesc");
+		    ul.innerHTML = '<h3>Services</h3>';
+		    for (const key in json['services']) {
+		      const li = document.createElement("li");
+		      li.innerHTML = json["services"][key]["name"]+' : '+json["services"][key]["port"] + ' - ' + json["services"][key]["version"];
+		      ul.appendChild(li);
+		    }
+
+		    const ul2 = document.getElementById("passwdDesc");
+		    ul2.innerHTML = '<h3>Passwords</h3>';
+		    for (const key in json['passwords']) {
+		      const li = document.createElement("li");
+		      li.innerHTML = json["passwords"][key]["user"] +' : ' + json["passwords"][key]["passwd"]
+		      ul2.appendChild(li);
+		    }
+		  });
+            });
         </script>
     </body>
 </html>
- 
