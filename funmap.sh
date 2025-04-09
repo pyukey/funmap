@@ -75,13 +75,15 @@ crack() {
 }
 
 makeJSON() {
-  printf "{\n  \"properties\": {\n    \"ip\": \"$1\",\n    \"hostname\": \"$2\",\n    \"distro\": \"$3\"\n  },\n  \"services\": {\n"
-  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
-    printf "  },\n  \"defaultCreds\": {\n"
+  printf "{\n  \"properties\": {\n    \"ip\": \"$1\",\n    \"hostname\": \"$2\",\n    \"distro\": \"$3\"\n  },\n  \"services\": [\n"
+  last="$(grep open $1/nmap.txt | tail -1)"
+  grep open "$1/nmap.txt" | grep -v "$last" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
+  grep open "$1/nmap.txt" | tail -1 | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
+  printf "  ],\n  \"defaultCreds\": {\n"
   if grep "$1:" crack.txt; then
-    grep "$1:" crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"pass\": \""$3"\""}'
+    grep "$1:" crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"passwd\": \""$3"\""}'
   else
-    printf "    \"user\": N/A,\n    \"pass\": N/A"
+    printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"
   fi
   printf "  }\n}"
 }
