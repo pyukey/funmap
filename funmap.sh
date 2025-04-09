@@ -66,7 +66,7 @@ crack() {
         else
           distro="WindowsXP"
         fi
-        echo "$ip : $name : $distro" >> crack.txt
+        echo "$ip:$user:$pass" >> crack.txt
         sed -i "/$ip/s/ unknown WindowsXP/ $name $distro/" hosts.txt
         return
       fi
@@ -76,11 +76,9 @@ crack() {
 
 makeJSON() {
   printf "{\n  \"properties\": {\n    \"ip\": \"$1\",\n    \"hostname\": \"$2\",\n    \"distro\": \"$3\"\n  },\n  \"services\": [\n"
-  last="$(grep open $1/nmap.txt | tail -1)"
-  grep open "$1/nmap.txt" | grep -v "$last" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
-  grep open "$1/nmap.txt" | tail -1 | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}'
+  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}' | sed '$ s/.$//'
   printf "  ],\n  \"defaultCreds\": {\n"
-  if grep "$1:" crack.txt; then
+  if grep -q "$1:" crack.txt; then
     grep "$1:" crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"passwd\": \""$3"\""}'
   else
     printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"

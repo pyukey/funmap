@@ -100,7 +100,7 @@ h1 {
 }
  
 .beeg {
-    height: 500px;
+    min-height: 500px;
     width: 250px;
 }
 .beeg > * {
