@@ -203,7 +203,7 @@ h1 {
  
 .toggle {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
 }
  
 .toggle-options {

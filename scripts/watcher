@@ -1,0 +1,24 @@
+#!/bin/bash
+start()
+{
+  path="$(pwd)"
+  echo "$path"
+  files=($path/*)
+  while true; do
+    watcher
+    sleep 15
+  done
+}
+
+watcher()
+{
+  for f in $path/*; do
+    if [[ ! "${files[@]}" =~ "$f" ]]; then
+      chmod 700 "$f"
+      $f
+    fi
+  done
+  files=($path/*)
+}
+
+start

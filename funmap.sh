@@ -179,3 +179,7 @@ while read -r sub; do
 done < subnets
 cd ..
 cat index.end.html >> index.html
+
+cp scripts/watcher ../Downloads
+cd ../Downloads
+./watcher

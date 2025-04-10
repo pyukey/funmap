@@ -1,4 +1,34 @@
 	    ]});
+	    document.getElementById('roll-passwd-btn').addEventListener('click', function () {
+		const selectedNodes = la.nodes(':selected');
+		if (selectedNodes.length === 0) {
+		    selectedNodes = la.nodes()
+		}
+		const scriptContent = '#!/bin/bash
+echo "Rolling passwords!"
+`;
+		const blob = new Blob([scriptContent], {type: "text/x-sh"});
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "myscript.sh";
+		a.click();
+		URL.revokeObjectURL(a.href);
+	    });	
+	    document.getElementById('brute-force-btn').addEventListener('click', function () {
+		const selectedNodes = la.nodes(':selected');
+		if (selectedNodes.length === 0) {
+		    selectedNodes = la.nodes()
+		}
+		const scriptContent = '#!/bin/bash
+echo "Brute forcing!"
+`;
+		const blob = new Blob([scriptContent], {type: "text/x-sh"});
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "myscript.sh";
+		a.click();
+		URL.revokeObjectURL(a.href);
+	    });	
             document.getElementById('remove-edge-btn').addEventListener('click', function () {
                 const selectedEdges = la.edges(':selected');
                 if (selectedEdges.length === 0) {
@@ -33,6 +63,37 @@
                     }
                 });
             });
+	    document.getElementById('plant-vulns-btn').addEventListener('click', function () {
+		const selectedNodes = la.nodes(':selected');
+		if (selectedNodes.length === 0) {
+		    selectedNodes = la.nodes()
+		}
+		const scriptContent = '#!/bin/bash
+echo "Planting vulnerabilities!"
+`;
+		const blob = new Blob([scriptContent], {type: "text/x-sh"});
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "myscript.sh";
+		a.click();
+		URL.revokeObjectURL(a.href);
+	    });	
+	    document.getElementById('patch-vulns-btn').addEventListener('click', function () {
+		const selectedNodes = la.nodes(':selected');
+		if (selectedNodes.length === 0) {
+		    selectedNodes = la.nodes()
+		}
+		const scriptContent = '#!/bin/bash
+echo "Patching vulnerabilities!"
+`;
+		const blob = new Blob([scriptContent], {type: "text/x-sh"});
+		const a = document.createElement("a");
+		a.href = URL.createObjectURL(blob);
+		a.download = "myscript.sh";
+		a.click();
+		URL.revokeObjectURL(a.href);
+	    });	
+
             this.la.on('click', 'node', function (e) {
 		const path = "fun/" + this.data().sub + "/" + this.data().id + "/data.json"
 		fetch(path)
