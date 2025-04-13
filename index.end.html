@@ -1,10 +1,11 @@
 	    ]});
 	    document.getElementById('roll-passwd-btn').addEventListener('click', function () {
-		const selectedNodes = la.nodes(':selected');
+		let selectedNodes = la.nodes(':selected');
 		if (selectedNodes.length === 0) {
-		    selectedNodes = la.nodes()
+		    la.nodes().select()
+		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = '#!/bin/bash
+		const scriptContent = `#!/bin/bash
 echo "Rolling passwords!"
 `;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
@@ -15,11 +16,12 @@ echo "Rolling passwords!"
 		URL.revokeObjectURL(a.href);
 	    });	
 	    document.getElementById('brute-force-btn').addEventListener('click', function () {
-		const selectedNodes = la.nodes(':selected');
+		let selectedNodes = la.nodes(':selected');
 		if (selectedNodes.length === 0) {
-		    selectedNodes = la.nodes()
+		    la.nodes().select()
+		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = '#!/bin/bash
+		const scriptContent = `#!/bin/bash
 echo "Brute forcing!"
 `;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
@@ -64,11 +66,12 @@ echo "Brute forcing!"
                 });
             });
 	    document.getElementById('plant-vulns-btn').addEventListener('click', function () {
-		const selectedNodes = la.nodes(':selected');
+		let selectedNodes = la.nodes(':selected');
 		if (selectedNodes.length === 0) {
-		    selectedNodes = la.nodes()
+		    la.nodes().select()
+		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = '#!/bin/bash
+		const scriptContent = `#!/bin/bash
 echo "Planting vulnerabilities!"
 `;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
@@ -79,11 +82,12 @@ echo "Planting vulnerabilities!"
 		URL.revokeObjectURL(a.href);
 	    });	
 	    document.getElementById('patch-vulns-btn').addEventListener('click', function () {
-		const selectedNodes = la.nodes(':selected');
+		let selectedNodes = la.nodes(':selected');
 		if (selectedNodes.length === 0) {
-		    selectedNodes = la.nodes()
+		    la.nodes().select()
+		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = '#!/bin/bash
+		const scriptContent = `#!/bin/bash
 echo "Patching vulnerabilities!"
 `;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
