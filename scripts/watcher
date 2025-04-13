@@ -9,13 +9,20 @@ start()
     sleep 15
   done
 }
-
+execute()
+{
+  num=$(grep -n "---" "$1" | awk '{print $1}')
+  while IFS= read -r ip; do
+    while IFS= read -r script; do
+      echo "Running $script on $ip"
+    done < <(tail -n "+$((num + 1))" "$1")
+  done < <(head -n "$((num - 1))" "$1")
+}
 watcher()
 {
   for f in $path/*; do
     if [[ ! "${files[@]}" =~ "$f" ]]; then
-      chmod 700 "$f"
-      $f
+      execute $f
     fi
   done
   files=($path/*)

@@ -5,13 +5,12 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = `#!/bin/bash
-echo "Rolling passwords!"
-`;
+		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		scriptContent += '\n<--->\npasswd';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
-		a.download = "myscript.sh";
+		a.download = "rollPasswd";
 		a.click();
 		URL.revokeObjectURL(a.href);
 	    });	
@@ -21,13 +20,12 @@ echo "Rolling passwords!"
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = `#!/bin/bash
-echo "Brute forcing!"
-`;
+		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		scriptContent += '\n<--->\nbrute';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
-		a.download = "myscript.sh";
+		a.download = "bruteForce";
 		a.click();
 		URL.revokeObjectURL(a.href);
 	    });	
@@ -71,13 +69,14 @@ echo "Brute forcing!"
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = `#!/bin/bash
-echo "Planting vulnerabilities!"
-`;
+		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
+		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
+		scriptContent += '\n<--->\n' + scriptList;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
-		a.download = "myscript.sh";
+		a.download = "plantVulns";
 		a.click();
 		URL.revokeObjectURL(a.href);
 	    });	
@@ -87,13 +86,14 @@ echo "Planting vulnerabilities!"
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		const scriptContent = `#!/bin/bash
-echo "Patching vulnerabilities!"
-`;
+		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
+		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
+		scriptContent += '\n<--->\n' + scriptList;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
-		a.download = "myscript.sh";
+		a.download = "patchVulns";
 		a.click();
 		URL.revokeObjectURL(a.href);
 	    });	

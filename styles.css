@@ -135,6 +135,27 @@ h1 {
     font-family: inherit;
     font-size: inherit;
 }
+.checkboxgroup{
+    width: 220px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 11px;
+    padding-bottom: 5px;
+}
+.checkboxgroup legend{
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.custom-checkbox{
+    white-space: nowrap;
+    display: inline-flex;
+    justify-content: space-around;
+    padding-left: 5px;
+}
+.custom-checkbox span{
+    margin-left: 5px;
+    margin-right: 5px;
+}
  
 .smol {
     height: 50px;
