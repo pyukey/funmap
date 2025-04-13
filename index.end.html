@@ -98,14 +98,23 @@ echo "Patching vulnerabilities!"
 		URL.revokeObjectURL(a.href);
 	    });	
 
+	    document.getElementById("hostnameDesc").addEventListener("input", function() {
+		const ip = document.getElementById("ipDesc").textContent
+		la.getElementById(ip).data('label', ip + '\n' + this.value)
+	    });
+	    document.getElementById("distroDesc").addEventListener("input", function() {
+		const ip = document.getElementById("ipDesc").textContent
+		la.getElementById(ip).data('image', 'assets/' + this.value + '.png')
+	    });
+
             this.la.on('click', 'node', function (e) {
 		const path = "fun/" + this.data().sub + "/" + this.data().id + "/data.json"
 		fetch(path)
 		  .then(response => response.json())
 		  .then(json => {
                     document.getElementById("ipDesc").textContent = json['properties']['ip']
-                    document.getElementById("hostnameDesc").textContent = json['properties']['hostname']
-                    document.getElementById("distroDesc").textContent = json['properties']['distro']
+                    document.getElementById("hostnameDesc").value = json['properties']['hostname']
+                    document.getElementById("distroDesc").value = json['properties']['distro']
 		    document.getElementById("userDesc").textContent = json['defaultCreds']['user'];
 		    document.getElementById("passDesc").textContent = json['defaultCreds']['passwd'];
 		    

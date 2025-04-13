@@ -121,6 +121,20 @@ h1 {
 .beeg > ul > li {
     margin-left: 15px;
 }
+.beeg > ul > li > input {
+    background-color: transparent;
+    border-style: hidden;
+    color: #f6f6f6;
+    font-family: inherit;
+    font-size: inherit;
+}
+.beeg > ul > li > style {
+    background-color: transparent;
+    border-style: hidden;
+    color: #f6f6f6;
+    font-family: inherit;
+    font-size: inherit;
+}
  
 .smol {
     height: 50px;
