@@ -128,7 +128,7 @@ h1 {
     font-family: inherit;
     font-size: inherit;
 }
-.beeg > ul > li > style {
+.beeg > ul > li > select {
     background-color: transparent;
     border-style: hidden;
     color: #f6f6f6;
