@@ -9,49 +9,14 @@ start()
     sleep 15
   done
 }
-runScript()
-{
-  sshpass -p $4 ssh -o StrictHostKeyChecking=no $3@$2 'bash -s' < $1
-}
 execute()
 {
-  case "$1" in
-    "rollPassw*")
-        while IFS= read -r ip sub family; do
-          user="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $2}')"
-          pass="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $3}')"
-          runScript "../funmap/scripts/$family/rollPasswd" "$ip" "$user" "$pass" > "../funmap/fun/$sub/$ip/pass.txt" &
-        done < $1
-        ;;
-    "bruteForc*")
-        while IFS= read -r ip sub family; do
-          user="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $2}')"
-          pass="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $3}')"
-          runScript "../funmap/scripts/$family/bruteForce" "$ip" "$user" "$pass" &
-        done < $1
-        ;;
-    "plantVuln*")
-        num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
-        while IFS= read -r ip sub family; do
-          while IFS= read -r script; do
-            user="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $2}')"
-            pass="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $3}')"
-            runScript "../funmap/scripts/$family/plant/$script" "$ip" "$user" "$pass" &
-          done < <(tail -n "+$((num + 1))" "$1")
-        done < <(head -n "$((num - 1))" "$1")
-        ;;
-    "patchVuln*")
-        num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
-        while IFS= read -r ip sub family; do
-          while IFS= read -r script; do
-            user="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $2}')"
-            pass="$(grep $2 ../funmap/fun/$1/creds.txt | awk -F: '{print $3}')"
-            runScript "../funmap/scripts/$family/patch/$script" "$ip" "$user" "$pass" &
-          done < <(tail -n "+$((num + 1))" "$1")
-        done < <(head -n "$((num - 1))" "$1")
-        ;;
-  esac
-  rm $1
+  num=$(grep -n "---" "$1" | awk '{print $1}')
+  while IFS= read -r ip; do
+    while IFS= read -r script; do
+      echo "Running $script on $ip"
+    done < <(tail -n "+$((num + 1))" "$1")
+  done < <(head -n "$((num - 1))" "$1")
 }
 watcher()
 {
