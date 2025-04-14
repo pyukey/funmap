@@ -72,6 +72,7 @@ crack() {
       fi
     done < "$path/pass.txt"
   done < "$path/users.txt"
+  cp crack.txt creds.txt
 }
 
 makeJSON() {

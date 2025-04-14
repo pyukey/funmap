@@ -5,8 +5,9 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
-		scriptContent += '\n<--->\npasswd';
+		let scriptContent = selectedNodes.map(node => {
+		    const data = node.data();
+		    return `${data.id} ${data.sub} ${data.family}`;}).join('\n');
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -20,8 +21,9 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
-		scriptContent += '\n<--->\nbrute';
+		let scriptContent = selectedNodes.map(node => {
+		    const data = node.data();
+		    return `${data.id} ${data.sub} ${data.family}`;}).join('\n');
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -69,10 +71,12 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => {
+		    const data = node.data();
+		    return `${data.id} ${data.sub} ${data.family}`;}).join('\n');
 		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
 		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
-		scriptContent += '\n<--->\n' + scriptList;
+		scriptContent += '\nxxxxxxxxx\n' + scriptList;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -86,10 +90,12 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => {
+		    const data = node.data();
+		    return `${data.id} ${data.sub} ${data.family}`;}).join('\n');
 		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
 		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
-		scriptContent += '\n<--->\n' + scriptList;
+		scriptContent += '\nxxxxxxxxx\n' + scriptList;
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
