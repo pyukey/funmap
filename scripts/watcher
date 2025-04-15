@@ -7,7 +7,7 @@ start()
   cd "../funmap"
   while true; do
     watcher
-    sleep 15
+    sleep 5
   done
 }
 brute()
@@ -16,7 +16,7 @@ brute()
   sub="$2"
   user="$(grep $ip fun/$sub/crack.txt | awk -F: '{print $2}')"
   pass="$(grep $ip fun/$sub/crack.txt | awk -F: '{print $3}')"
-  output="$(sshpass -p $pass ssh -o StrictHostKeyCChecking=no $user@$ip 'echo himom' 2>&1 | grep -v 'denied\|closed\|reset')"
+  output="$(sshpass -p $pass ssh -o StrictHostKeyChecking=no $user@$ip 'echo himom' 2>&1 | grep -v 'denied\|closed\|reset')"
   if [[ -n "$output" ]]; then
     echo "yes" >> fun/$sub/$ip/brute.txt
   else
@@ -37,40 +37,40 @@ run()
   ip="$2"
   user="$(tail -n 1 fun/$sub/$ip/pass.txt | awk '{print $1}')"
   pass="$(tail -n 1 fun/$sub/$ip/pass.txt | awk '{print $2}')"
-  sshpass -p $pass ssh -o StrictHostKeyCheckinig $user@$ip 'echo $pass | sudo -S su; sudo su; bash -s' < $file
+  sshpass -p $pass ssh -o StrictHostKeyChecking=no $user@$ip 'echo $pass | sudo -S su; sudo su; bash -s' < $file
 }
 execute()
 {
   case "$1" in
-    "*scan*") printf "\033[96mScanning\033[00m\n"
+    *scan*) printf "\033[96mScanning\033[00m\n"
 	while IFS= read -r ip sub family; do
 	  nmap -sS -sV "$ip" > "$sub/$ip/nmap.txt" 2>/dev/null &
 	done < $1;;
-    "*roll*") printf "\033[92mRolling passwords\033[00m\n"
+    *roll*) printf "\033[92mRolling passwords\033[00m\n"
 	while IFS= read -r ip sub family; do
 	  (send  WORDLIST.TXT $ip $sub && run ./scripts/$family/roll $ip $sub > fun/$sub/$ip/pass.txt) &
 	done < $1;;
-    "*brute*") printf "\033[91mBrute forcing\033[00m\n";;
+    *brute*) printf "\033[91mBrute forcing\033[00m\n"
 	while IFS= read -r ip sub family; do
 	  brute $ip $sub &
 	done < $1;;
-    "*plant*") printf "\033[91mPlanting vulnerabilities\033[00m\n";;
+    *plant*) printf "\033[91mPlanting vulnerabilities\033[00m\n"
 	num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
 	while IFS= read -r ip sub family; do
 	  while IFS= read -r script; do
 	    echo "Running $script on $ip"
 	    run ./scripts/$family/plant/$script $ip $sub &
 	  done < <(tail -n "+$((num + 1))" "$1")
-	done < <(head -n "$((num - 1))" "$1")
-    "*patch*") printf "\033[92mPatching vulnerabilities\033[00m\n";;
+	done < <(head -n "$((num - 1))" "$1");;
+    *patch*) printf "\033[92mPatching vulnerabilities\033[00m\n"
 	num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
 	while IFS= read -r ip sub family; do
 	  while IFS= read -r script; do
 	    echo "Running $script on $ip"
 	    run ./scripts/$family/plant/$script $ip $sub &
 	  done < <(tail -n "+$((num + 1))" "$1")
-	done < <(head -n "$((num - 1))" "$1")
-    "*") printf "unknown command\n";;
+	done < <(head -n "$((num - 1))" "$1");;
+    *) printf "unknown command\n";;
   esac
 }
 watcher()
