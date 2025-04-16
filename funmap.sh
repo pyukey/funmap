@@ -64,7 +64,7 @@ crack() {
         elif echo "$uname" | grep -qi dragonfly; then
           distro="DragonFly"
         else
-          distro="WindowsXP"
+          distro="Unknown"
         fi
 	echo "$user $pass" > "$ip/pass.txt"
         echo "$ip:$user:$pass" >> crack.txt
@@ -87,6 +87,7 @@ makeJSON() {
   printf "  }\n}"
 }
 
+printf "\033[01m\033[04mUSERS\033[00m\n"
 read -p "Enter default user: " user
 while true; do
   if [ "$user" = "done" ]; then
@@ -97,6 +98,7 @@ while true; do
   read -p "Enter default user. [Type done to stop]: " user
 done
  
+printf "\033[01m\033[04mPASSWDS\033[00m\n"
 read -p "Enter default password: " pass
 while true; do
   if [ "$pass" = "done" ]; then
@@ -107,6 +109,7 @@ while true; do
   read -p "Enter default password. [Type done to stop]: " pass
 done
  
+printf "\033[01m\033[04mSUBNETS\033[00m\n"
 regex='^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2])$'
 read -p "Enter a subnet to scan: " sub
 while [[ $sub =~ $regex ]]; do
@@ -127,7 +130,7 @@ while read -r sub; do
   cd ..
 done < subnets
  
-echo "Let's go!"
+echo "Start scanning!"
  
 cat ../index.template.html > ../index.html
 ybase=25
@@ -137,12 +140,11 @@ while read -r sub; do
   sort hosts.txt > hosts.tmp.txt && cp hosts.tmp.txt hosts.txt
  
   router=$(head -1 hosts.tmp.txt | xargs)
-  echo "$router"
  
   lines=$(wc -l < hosts.tmp.txt)
   ((lines -= 2))
  
-  sed -i "s/$/ unknown WindowsXP/" hosts.txt && \
+  sed -i "s/$/ unknown Unknown/" hosts.txt && \
  
   while read -r ip; do
     crack "$ip"
