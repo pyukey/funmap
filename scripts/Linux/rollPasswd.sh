@@ -9,12 +9,7 @@ gen() {
   echo "$(shuf -n 5 WORDLIST.TXT | paste -sd '0' -)"
 }
 out=""
-while getopts "f:" opt; do
-  case $opt in
-    f) users=$(grep -Ev 'blackteam' /etc/passwd | awk -F: '{print $1}');;
-    ?) users=$(grep -Ev '/sbin/nologin|/bin/false|sync|blackteam' /etc/passwd | awk -F: '{print $1}');;
-  esac
-done
+users=$(grep -Ev '/sbin/nologin|/bin/false|sync|blackteam' /etc/passwd | awk -F: '{print $1}')
 for user in $users
 do pass=$(gen)
   if openssl passwd --help 2>&1 | grep -q '\6'; then
