@@ -68,7 +68,7 @@ crack() {
         fi
 	echo "$user $pass" > "$ip/pass.txt"
         echo "$ip:$user:$pass" >> crack.txt
-        sed -i "/$ip/s/ unknown WindowsXP/ $name $distro/" hosts.txt
+        sed -i "/$ip/s/ unknown Unknown/ $name $distro/" hosts.txt
         return
       fi
     done < "$path/pass.txt"
@@ -158,9 +158,9 @@ while read -r sub; do
   while read -r ip hostname distro; do
     makeJSON "$ip" "$hostname" "$distro" > "$ip/data.json"
     if [ "$ip" = "$router" ]; then
-      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
     else
-      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
+      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
       echo "                { data: { id: \"connect_$ip\", source: \"$router\", target: \"$ip\" } }," >> ../../index.html
       ((count += 1))
       if [ "$count" -eq 8 ]; then

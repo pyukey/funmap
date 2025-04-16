@@ -10,6 +10,28 @@ start()
     sleep 5
   done
 }
+findFamily() {
+  case "$1" in
+    Debian) echo "Linux";;
+    Ubuntu) echo "Linux";;
+    Kali) echo "Linux";;
+    RHEL) echo "Linux";;
+    CentOS) echo "Linux";;
+    Fedora) echo "Linux";;
+    Rocky) echo "Linux";;
+    Alma) echo "Linux";;
+    Arch) echo "Linux";;
+    Manjaro) echo "Linux";;
+    Endeavour) echo "Linux";;
+    Alpine) echo "Linux";;
+    NixOS) echo "Linux";;
+    FreeBSD) echo "BSD";;
+    OpenBSD) echo "BSD";;
+    NetBSD) echo "BSD";;
+    DragonFly) echo "BSD";;
+    *) echo "Windows";;
+  esac
+}
 makeJSON() {
   ip="$1"
   sub="$2"
@@ -28,7 +50,6 @@ makeJSON() {
   printf "  }\n}"
 }
 
-}
 brute()
 {
   ip="$1"
@@ -38,6 +59,7 @@ brute()
   output="$(sshpass -p $pass ssh -o StrictHostKeyChecking=no $user@$ip 'echo himom' 2>&1 | grep -v 'denied\|closed\|reset')"
   if [[ -n "$output" ]]; then
     echo "yes" >> fun/$sub/$ip/brute.txt
+    printf "\033[91m$ip\033[00m still has default creds!"
   else
     echo "no"  >> fun/$sub/$ip/brute.txt
   fi
@@ -62,20 +84,23 @@ execute()
 {
   case "$1" in
     *scan*) printf "\033[96mScanning\033[00m\n"
-	while IFS= read -r ip sub family; do
+	while IFS= read -r ip sub distro hostname; do
 	  nmap -sS -sV "$ip" > "$sub/$ip/nmap.txt" 2>/dev/null &
+	  makeJSON $ip $sub "$hostname" $distro
 	done < $1;;
     *roll*) printf "\033[92mRolling passwords\033[00m\n"
-	while IFS= read -r ip sub family; do
+	while IFS= read -r ip sub distro hostname; do
+	  family="$(findFamily $distro)"
 	  (send  WORDLIST.TXT $ip $sub && run ./scripts/$family/roll $ip $sub > fun/$sub/$ip/pass.txt) &
 	done < $1;;
     *brute*) printf "\033[91mBrute forcing\033[00m\n"
-	while IFS= read -r ip sub family; do
+	while IFS= read -r ip sub distro hostname; do
 	  brute $ip $sub &
 	done < $1;;
     *plant*) printf "\033[91mPlanting vulnerabilities\033[00m\n"
 	num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
-	while IFS= read -r ip sub family; do
+	while IFS= read -r ip sub distro hostname; do
+	  family="$(findFamily $distro)"
 	  while IFS= read -r script; do
 	    echo "Running $script on $ip"
 	    run ./scripts/$family/plant/$script $ip $sub &
@@ -83,7 +108,8 @@ execute()
 	done < <(head -n "$((num - 1))" "$1");;
     *patch*) printf "\033[92mPatching vulnerabilities\033[00m\n"
 	num=$(grep -n "xxxxxxxxx" "$1" | awk -F: '{print $1}')
-	while IFS= read -r ip sub family; do
+	while IFS= read -r ip sub distro hostname; do
+	  family="$(findFamily $distro)"
 	  while IFS= read -r script; do
 	    echo "Running $script on $ip"
 	    run ./scripts/$family/plant/$script $ip $sub &

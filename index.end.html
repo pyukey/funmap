@@ -5,7 +5,8 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => node.id() + " " + node.data().sub + " " + node.data().distro + " " + node.data().hostname).join('\n');
+		scriptContent+='\n';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -19,7 +20,8 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => node.id() + " " + node.data().sub + " " + node.data().distro + " " + node.data().hostname).join('\n');
+		scriptContent+='\n';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -33,7 +35,8 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => node.id() + " " + node.data().sub + " " + node.data().distro + " " + node.data().hostname).join('\n');
+		scriptContent+='\n';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -81,10 +84,10 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => node.id() + " " + node.data().sub + " " + node.data().distro + " " + node.data().hostname).join('\n');
 		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
 		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
-		scriptContent += '\nxxxxxxxxx\n' + scriptList;
+		scriptContent += '\nxxxxxxxxx\n' + scriptList + '\n';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -98,10 +101,10 @@
 		    la.nodes().select()
 		    selectedNodes = la.nodes(':selected');
 		}
-		let scriptContent = selectedNodes.map(node => node.id()).join('\n');
+		let scriptContent = selectedNodes.map(node => node.id() + " " + node.data().sub + " " + node.data().distro + " " + node.data().hostname).join('\n');
 		const checkedBoxes = document.querySelectorAll('#scriptsData input[type="checkbox"]:checked');
 		const scriptList = Array.from(checkedBoxes).map(cb => cb.id).join('\n');
-		scriptContent += '\nxxxxxxxxx\n' + scriptList;
+		scriptContent += '\nxxxxxxxxx\n' + scriptList + '\n';
 		const blob = new Blob([scriptContent], {type: "text/x-sh"});
 		const a = document.createElement("a");
 		a.href = URL.createObjectURL(blob);
@@ -112,11 +115,17 @@
 
 	    document.getElementById("hostnameDesc").addEventListener("input", function() {
 		const ip = document.getElementById("ipDesc").textContent
-		la.getElementById(ip).data('label', ip + '\n' + this.value)
+		la.getElementById(ip).data({
+		  distro: this.value,
+		  label: ip + '\n' + this.value
+		});
 	    });
 	    document.getElementById("distroDesc").addEventListener("input", function() {
 		const ip = document.getElementById("ipDesc").textContent
-		la.getElementById(ip).data('image', 'assets/' + this.value + '.png')
+		la.getElementById(ip).data({
+		  distro: this.value,
+		  image: 'assets/' + this.value + '.png'
+		});
 	    });
 
             this.la.on('click', 'node', function (e) {
