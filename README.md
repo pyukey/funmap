@@ -16,6 +16,7 @@ Using your given default credentials, enter the users, passwords, and subnets fo
 ![image info](./assets/Ex1.png)
 ## Features
 Funmap supports many features including: 
+- is super lightweight and requires minimal installs, allowing us to deploy and secure our network within minutes!
 - a fully customizable network diagram (7)
 - a password management service (3)
 - a brute forcer to detect machines where default logins still work (6)
