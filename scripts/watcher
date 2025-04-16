@@ -80,6 +80,7 @@ send()
   sub="$3"
   user="$(tail -n 1 fun/$sub/$ip/pass.txt | awk '{print $1}')"
   pass="$(tail -n 1 fun/$sub/$ip/pass.txt | awk '{print $2}')"
+  sshpass -p $pass scp $1 $user@$ip:
   echo "Sent"
 }
 run()
@@ -92,6 +93,14 @@ run()
   sshpass -p $pass scp $1 $user@$ip:
   sshpass -p $pass ssh -tt $user@$ip "echo '$pass' | sudo -S bash $4"
 }
+roll() {
+  ip="$1"
+  sub="$2"
+  send  "$path/../funmap/WORDLIST.TXT" $ip $sub
+  wait
+  run "$path/../funmap/scripts/$family/rollPasswd.sh" $ip $sub "rollPasswd.sh"
+}
+
 execute()
 {
   case "$1" in
@@ -104,7 +113,7 @@ execute()
     *roll*) printf "\033[92mRolling passwords\033[00m\n"
         while IFS=" " read -r ip sub distro hostname; do
           family="$(findFamily $distro)"
-          (send  "$path/../funmap/WORDLIST.TXT" $ip $sub && run "$path/../funmap/scripts/$family/rollPasswd.sh" $ip $sub "rollPasswd.sh") &
+          (roll $ip $sub) &
         done < $1;;
     *brute*) printf "\033[91mBrute forcing\033[00m\n"
         while IFS=" " read -r ip sub distro hostname; do
@@ -140,5 +149,5 @@ watcher()
   done
   files=($path/*)
 }
- 
+
 start
