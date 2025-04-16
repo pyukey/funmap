@@ -66,6 +66,7 @@ crack() {
         else
           distro="WindowsXP"
         fi
+	echo "$user $pass" > "$ip/pass.txt"
         echo "$ip:$user:$pass" >> crack.txt
         sed -i "/$ip/s/ unknown WindowsXP/ $name $distro/" hosts.txt
         return

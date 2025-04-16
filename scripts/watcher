@@ -10,6 +10,25 @@ start()
     sleep 5
   done
 }
+makeJSON() {
+  ip="$1"
+  sub="$2"
+  hostname="$3"
+  distro="$4"
+  printf "{\n  \"properties\": {\n    \"ip\": \"$ip\",\n    \"hostname\": \"$hostname\",\n    \"distro\": \"$distro\"\n  },\n  \"services\": [\n"
+  grep open "$sub/$ip/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}' | sed '$ s/.$//'
+  printf "  ],\n  \"defaultCreds\": {\n"
+  if grep -q "$ip:" $sub/crack.txt; then
+    grep "$ip:" $sub/crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"passwd\": \""$3"\""}'
+  else
+    printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"
+  fi
+  printf "  }\n  \"passwords\": {\n"
+  cat $sub/$ip/pass.txt | awk '{print "    {\n      \"user\": \""$1"\",\n      \"passwd\": \""$2"\"\n    }\n"}'
+  printf "  }\n}"
+}
+
+}
 brute()
 {
   ip="$1"
