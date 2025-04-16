@@ -46,7 +46,9 @@ makeJSON() {
     printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"
   fi
   printf "  },\n  \"passwords\": [\n"
-  cat fun/$sub/$ip/pass.txt | awk '{print "    {\n      \"user\": \""$1"\",\n      \"passwd\": \""$2"\"\n    }\n"}'
+  if [ -f fun/$sub/$ip/pass.txt ]
+    cat fun/$sub/$ip/pass.txt | awk '{print "    {\n      \"user\": \""$1"\",\n      \"passwd\": \""$2"\"\n    }\n"}'
+  fi
   printf "  ]\n}"
 }
 
@@ -85,15 +87,14 @@ execute()
   case "$1" in
     *scan*) printf "\033[96mScanning\033[00m\n"
 	while IFS=" " read -r ip sub distro hostname; do
-	  nmap -sS -sV "$ip" > "fun/$sub/$ip/nmap.txt" 2>/dev/null &
-	  makeJSON $ip $sub "$hostname" $distro
+	  (nmap -sS -sV "$ip" > "fun/$sub/$ip/nmap.txt" 2>/dev/null && makeJSON $ip $sub "$hostname" $distro > fun/$sub/$ip/nmap.txt) &
 	done < $1
 	wait
 	echo "Done scanning!";;
     *roll*) printf "\033[92mRolling passwords\033[00m\n"
 	while IFS=" " read -r ip sub distro hostname; do
 	  family="$(findFamily $distro)"
-	  (send  WORDLIST.TXT $ip $sub && run ./scripts/$family/roll $ip $sub > fun/$sub/$ip/pass.txt) &
+	  (send  WORDLIST.TXT $ip $sub && run ./scripts/$family/rollPasswd.sh $ip $sub > fun/$sub/$ip/pass.txt) &
 	done < $1;;
     *brute*) printf "\033[91mBrute forcing\033[00m\n"
 	while IFS=" " read -r ip sub distro hostname; do
