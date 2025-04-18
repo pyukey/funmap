@@ -128,7 +128,7 @@
 		});
 	    });
 
-	    document.getElementById("passwdDesc").addEeventListener('input', () => {
+	    document.getElementById("passwdDesc").addEventListener('input', () => {
 		const query = searchBox.value.trim();
 		if (query in userMap) {
 		    resultPasswd.textContent = `${userMap[query]}`;
