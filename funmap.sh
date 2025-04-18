@@ -17,6 +17,29 @@ fi
 mkdir fun
 cd fun
  
+findFamily() {
+  case "$1" in
+    Debian) echo "Linux";;
+    Ubuntu) echo "Linux";;
+    Kali) echo "Linux";;
+    RHEL) echo "Linux";;
+    CentOS) echo "Linux";;
+    Fedora) echo "Linux";;
+    Rocky) echo "Linux";;
+    Alma) echo "Linux";;
+    Arch) echo "Linux";;
+    Manjaro) echo "Linux";;
+    Endeavour) echo "Linux";;
+    Alpine) echo "Linux";;
+    NixOS) echo "Linux";;
+    FreeBSD) echo "BSD";;
+    OpenBSD) echo "BSD";;
+    NetBSD) echo "BSD";;
+    DragonFly) echo "BSD";;
+    *) echo "Windows";;
+  esac
+}
+
 crack() {
   ip="$1"
   put="$(sshpass -p pass ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no user@$1 'hostname; uname -a' 2>&1 | grep 'Connection')"
@@ -85,6 +108,16 @@ makeJSON() {
     printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"
   fi
   printf "  }\n}"
+}
+
+rollPasswd() {
+  if grep -q "$1:" crack.txt; then
+    user="$(grep "$1:" crack.txt | awk -F: '{print $2}')"
+    pass="$(grep "$1:" crack.txt | awk -F: '{print $3}')"
+    sshpass -p $pass scp "$path/plus" $user@$1:
+    sshpass -p $pass scp "$path/$2/agent" $user@$1:
+    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./assets/rollPasswd.sh" > "$ip/pass.txt"
+  fi
 }
 
 printf "\033[01m\033[04mUSERS\033[00m\n"
@@ -156,6 +189,8 @@ while read -r sub; do
   count=0
  
   while read -r ip hostname distro; do
+    fam="$(findFamily $distro)"
+    rollPasswd "$ip" "$fam" &
     makeJSON "$ip" "$hostname" "$distro" > "$ip/data.json"
     if [ "$ip" = "$router" ]; then
       echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html

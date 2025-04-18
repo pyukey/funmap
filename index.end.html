@@ -128,6 +128,24 @@
 		});
 	    });
 
+	    const resultPasswd = document.getElementById('result');
+	    const reader = new FileReader();
+	    reader.onload = e => {
+		const lines = e.target.result.split('\n');
+		for (let line of lines) {
+		    const [username, passwd] = line.trim().split(' ');
+		    if (username && passwd) {
+			userMap[username] = password;
+		    }
+		}
+	    }
+
+	    document.getElementById("passwdDesc").addEeventListener('input', () => {
+		const query = searchBox.value.trim();
+		if (query in userMap) {
+		    resultPasswd.textContent = `${userMap[query]}`;
+		}
+	    });
             this.la.on('click', 'node', function (e) {
 		const path = "fun/" + this.data().sub + "/" + this.data().id + "/data.json"
 		fetch(path)
@@ -146,15 +164,9 @@
 		      li.innerHTML = json["services"][key]["name"]+' : '+json["services"][key]["port"] + ' - ' + json["services"][key]["version"];
 		      ul.appendChild(li);
 		    }
-
-		    const ul2 = document.getElementById("passwdDesc");
-		    ul2.innerHTML = '<h3>Passwords</h3>';
-		    for (const key in json['passwords']) {
-		      const li = document.createElement("li");
-		      li.innerHTML = json["passwords"][key]["user"] +' : ' + json["passwords"][key]["passwd"]
-		      ul2.appendChild(li);
-		    }
 		  });
+		const passPath = "fun/" + this.data().sub + "/" + this.data().id + "/pass.txt";
+		reader.readAsText(passPath);
             });
         </script>
     </body>
