@@ -1,5 +1,5 @@
 #!/bin/sh
-size=$(wc -l WORDLIST.TXT | awk '{print $1}')
+size=$(wc -l plus/WORDLIST.TXT | awk '{print $1}')
 genword() {
   echo $(head -n $(expr 1 + $(od -A n -t d -N 2 /dev/urandom) % $size) WORDLIST.TXT | tail -n 1)
 }

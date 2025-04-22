@@ -6,7 +6,7 @@ else
   exit
 fi
 gen() {
-  echo "$(shuf -n 5 WORDLIST.TXT | paste -sd '0' -)"
+  echo "$(shuf -n 5 plus/WORDLIST.TXT | paste -sd '0' -)"
 }
 out=""
 users=$(grep -Ev '/sbin/nologin|/bin/false|sync|blackteam' /etc/passwd | awk -F: '{print $1}')
