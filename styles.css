@@ -250,3 +250,6 @@ h1 {
     border-bottom-left-radius: 14px;
     border-bottom-right-radius: 14px;
 }
+.wrap {
+    word-wrap: break-word;
+}

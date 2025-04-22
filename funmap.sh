@@ -116,7 +116,7 @@ rollPasswd() {
     pass="$(grep "$1:" crack.txt | awk -F: '{print $3}')"
     sshpass -p $pass scp -r "$path/plus" $user@$1:
     sshpass -p $pass scp -r "$path/$2/agent" $user@$1:
-    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./assets/rollPasswd.sh" > "$ip/pass.txt"
+    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./agent/rollPasswd.sh" > "$ip/pass.txt"
   fi
 }
 

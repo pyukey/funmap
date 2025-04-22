@@ -128,12 +128,6 @@
 		});
 	    });
 
-	    document.getElementById("passwdDesc").addEventListener('input', () => {
-		const query = searchBox.value.trim();
-		if (query in userMap) {
-		    resultPasswd.textContent = `${userMap[query]}`;
-		}
-	    });
 	    let userMap = {};
 	    const searchUser = document.getElementById('searchUser');
 	    const result = document.getElementById('result');
@@ -161,7 +155,7 @@
 		fetch(passPath)
 		  .then((res) => res.text())
 		  .then((text) => {
-		    const lines = text.split('\n')
+		    const lines = text.split('\r')
 		    for (let line of lines) {
 		      const [username, passwd] = line.trim().split(' ');
 		      if (username && passwd) {
@@ -173,7 +167,7 @@
 	    searchUser.addEventListener('input', function () {
 		const query = searchUser.value.trim();
 		if (query in userMap) {
-		    result.textContent = '${userMap[query]}';
+		    result.textContent = userMap[query];
 		}
 	    });
         </script>
