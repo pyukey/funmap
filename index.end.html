@@ -131,7 +131,7 @@
 	    let userMap = {};
 	    const searchUser = document.getElementById('searchUser');
 	    const result = document.getElementById('result');
-            this.la.on('click', 'node', function (e) {
+            la.on('click', 'node', function (e) {
 		const path = "fun/" + this.data().sub + "/" + this.data().id + "/data.json"
 		fetch(path)
 		  .then(response => response.json())
@@ -155,7 +155,7 @@
 		fetch(passPath)
 		  .then((res) => res.text())
 		  .then((text) => {
-		    const lines = text.split('\r')
+		    const lines = text.split('\n')
 		    for (let line of lines) {
 		      const [username, passwd] = line.trim().split(' ');
 		      if (username && passwd) {

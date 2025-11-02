@@ -114,6 +114,8 @@ crack() {
           distro="NetBSD"
         elif echo "$uname" | grep -qi dragonfly; then
           distro="DragonFly"
+        elif echo "$uname" | grep -qi linux; then
+          distro="CentOS"
         else
           distro="Unknown"
         fi
@@ -123,6 +125,11 @@ crack() {
       fi
     done < "pass.txt"
   done < "users.txt"
+  if [ -f "fun/$ip/info.txt" ]; then
+    :
+  else
+    printf "Name: N/A\nDistro: Unknown\n" >> "fun/$ip/info.txt"
+  fi
 }
 
 makeJSON() {
@@ -144,14 +151,20 @@ makeJSON() {
 }
 
 rollPasswd() {
-  echo "Rolling passwords on $1"
+  echo "Begin rolling passwords on $1"
   if grep -q "$1:" cracked.txt; then
     user="$(grep "$1:" cracked.txt | awk -F: '{print $2}')"
     pass="$(grep "$1:" cracked.txt | awk -F: '{print $3}')"
+    if [ "$user" = "root" ]; then
+      remotePath="/root"
+    else
+      remotePath="/home/$user"
+    fi
     sshpass -p $pass scp -r "$path/plus" $user@$1:
     sshpass -p $pass scp -r "$path/$2/agent" $user@$1:
-    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./agent/rollPasswd.sh" > "fun/$ip/pass.txt"
+    sshpass -p $pass ssh -tt $user@$1 "$remotePath/agent/exec.sh $pass rollPasswd.sh" > "fun/$ip/pass.txt"
   fi
+  echo "Finished rolling passwords on $1"
 }
 
 if [ -f users.txt ]; then
@@ -232,7 +245,7 @@ while read -r ip; do
 
   makeJSON $ip > "fun/$ip/data.json"
   
-  echo "                { data: { id: \"$ip\", sub: \"0.0.0.0\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> index.html
+  printf "                { data: { id: \"$ip\", sub: \"0.0.0.0\", label: \"$ip\\\\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> index.html
   count=$((count + 1))
   if [ "$count" -eq 8 ]; then
     count=0
