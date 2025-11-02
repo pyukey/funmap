@@ -12,7 +12,7 @@ genpass() {
   echo "$pass"
 }
 out=""
-for user in $(egrep -v '#|/sbin/nologin|/bin/false' /etc/passwd | awk -F: '{print $1}')
+for user in $(grep -v '#\|/sbin/nologin\|/bin/false' /etc/passwd | awk -F: '{print $1}')
 do pass=$(genpass)
   echo "$pass" | pw usermod -n "$user" -h 0
   out="$out\n$user: $pass"

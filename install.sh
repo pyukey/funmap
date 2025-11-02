@@ -64,11 +64,11 @@ if [ "$PM" = "unsupported" ]; then
   exit 2
 fi
 
-package_list=""
-check nano
+#package_list=""
+#check nano
 check nmap
 check sshpass
-if [ -n "$package_list" ]; then
-  echo "Installing$package_list using $PM..."
-  install_package "$PM"
-fi
+#if [ -n "$package_list" ]; then
+#  echo "Installing$package_list using $PM..."
+#  install_package "$PM"
+#fi

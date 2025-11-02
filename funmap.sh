@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+ESC="\033["
+HEADER="${ESC}1;4m"
+CLEAR="${ESC}0m"
+
 ./install.sh
- 
-path="$(pwd)"
  
 if [ -f pass.txt ]; then
   rm pass.txt
@@ -11,12 +13,37 @@ if [ -f users.txt ]; then
   rm users.txt
 fi
  
+if [ -f ips.txt ]; then
+  rm ips.txt
+fi
+ 
+if [ -f cracked.txt ]; then
+  rm cracked.txt
+fi
+ 
 if [ -d fun ]; then
   rm -rf fun
 fi
 mkdir fun
-cd fun
+
+roll="false"
+fix="false"
+path="$(pwd)"
  
+while [ $# -gt 0 ]; do
+  case $1 in
+    -r | --roll) roll="true";;
+    -f | --fix) fix="true";;
+    -u | --users) echo "$2" | sed 's/,/\n/g' > users.txt
+        shift;;
+    -p | --passwords | --passwds) echo "$2" | sed 's/,/\n/g' > pass.txt
+        shift;;
+    -i | --ips) echo "$2" | sed 's/,/\n/g' > ips.txt
+        shift;;
+  esac
+  shift
+done
+
 findFamily() {
   case "$1" in
     Debian) echo "Linux";;
@@ -42,14 +69,15 @@ findFamily() {
 
 crack() {
   ip="$1"
+  echo "Cracking $1"
   put="$(sshpass -p pass ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no user@$1 'hostname; uname -a' 2>&1 | grep 'Connection')"
-  if [[ -n "$put" ]]; then
+  if [ -n "$put" ]; then
     return
   fi
   while read -r user; do
     while read -r pass; do
       output="$(sshpass -p $pass ssh -o StrictHostKeyChecking=no $user@$1 'hostname; uname -a' 2>&1 | grep -v 'denied\|closed\|reset' | sed ':a;N;$!ba;s/\n/|/g' | grep -v hostname)"
-      if [[ -n "$output" ]]; then
+      if [ -n "$output" ]; then
         name="$(echo $output | awk -F'|' '{print $1}')"
         uname="$(echo $output | awk -F'|' '{print $2}')"
         if echo "$uname" | grep -qi debian; then
@@ -89,21 +117,26 @@ crack() {
         else
           distro="Unknown"
         fi
-	echo "$user $pass" > "$ip/pass.txt"
-        echo "$ip:$user:$pass" >> crack.txt
-        sed -i "/$ip/s/ unknown Unknown/ $name $distro/" hosts.txt
+	echo "$ip:$user:$pass" >> cracked.txt
+        printf "Name: $name\nDistro: $distro\n" >> "fun/$ip/info.txt"
         return
       fi
-    done < "$path/pass.txt"
-  done < "$path/users.txt"
+    done < "pass.txt"
+  done < "users.txt"
 }
 
 makeJSON() {
-  printf "{\n  \"properties\": {\n    \"ip\": \"$1\",\n    \"hostname\": \"$2\",\n    \"distro\": \"$3\"\n  },\n  \"services\": [\n"
-  grep open "$1/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}' | sed '$ s/.$//'
+  ip=$1
+  crack="$(grep "$ip:" cracked.txt)"
+  username="$(echo $crack | awk -F: '{print $2}')"
+  passwd="$(echo $crack | awk -F: '{print $3}')"
+  hostname="$(grep Name fun/$ip/info.txt | awk '{print $2}')"
+  distro="$(grep Distro fun/$ip/info.txt | awk '{print $2}')"
+  printf "{\n  \"properties\": {\n    \"ip\": \"$ip\",\n    \"hostname\": \"$hostname\",\n    \"distro\": \"$distro\"\n  },\n  \"services\": [\n"
+  grep open "fun/$ip/nmap.txt" | awk '{print "    {\n      \"name\": \""$3"\",\n      \"port\": \""$1"\",\n      \"version\": \""$4"\"\n    },"}' | sed '$ s/.$//'
   printf "  ],\n  \"defaultCreds\": {\n"
-  if grep -q "$1:" crack.txt; then
-    grep "$1:" crack.txt | awk -F: '{print "    \"user\": \""$2"\",\n    \"passwd\": \""$3"\""}'
+  if echo "$crack" | grep -q -E "^$ip"; then
+    printf "    \"user\": \"$username\",\n    \"passwd\": \"$passwd\"\n"
   else
     printf "    \"user\": \"N/A\",\n    \"passwd\": \"N/A\"\n"
   fi
@@ -111,113 +144,112 @@ makeJSON() {
 }
 
 rollPasswd() {
-  if grep -q "$1:" crack.txt; then
-    user="$(grep "$1:" crack.txt | awk -F: '{print $2}')"
-    pass="$(grep "$1:" crack.txt | awk -F: '{print $3}')"
+  echo "Rolling passwords on $1"
+  if grep -q "$1:" cracked.txt; then
+    user="$(grep "$1:" cracked.txt | awk -F: '{print $2}')"
+    pass="$(grep "$1:" cracked.txt | awk -F: '{print $3}')"
     sshpass -p $pass scp -r "$path/plus" $user@$1:
     sshpass -p $pass scp -r "$path/$2/agent" $user@$1:
-    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./agent/rollPasswd.sh" > "$ip/pass.txt"
+    sshpass -p $pass ssh -tt $user@$1 "echo '$pass' | sudo -S bash ./agent/rollPasswd.sh" > "fun/$ip/pass.txt"
   fi
 }
 
-printf "\033[01m\033[04mUSERS\033[00m\n"
-read -p "Enter default user: " user
-while true; do
-  if [ "$user" = "done" ]; then
-    break
-  else
-    echo "$user" >> "$path/users.txt"
-  fi
-  read -p "Enter default user. [Type done to stop]: " user
-done
- 
-printf "\033[01m\033[04mPASSWDS\033[00m\n"
-read -p "Enter default password: " pass
-while true; do
-  if [ "$pass" = "done" ]; then
-    break
-  else
-    echo "$pass" >> "$path/pass.txt"
-  fi
-  read -p "Enter default password. [Type done to stop]: " pass
-done
- 
-printf "\033[01m\033[04mSUBNETS\033[00m\n"
-regex='^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2])$'
-read -p "Enter a subnet to scan: " sub
-while [[ $sub =~ $regex ]]; do
-  echo "$sub" >> subnets
-  read -p "Enter a subnet to scan. [Type done to stop]: " sub
-done
-while read -r sub; do
-  subStart=${sub%%/*}
-  mkdir "$subStart"
-  cd "$subStart"
-  nmap -PR -PE -PP -PM -PO2 -PS21,22,23,25,80,110,113,135,137,143,443,445,691,993,995,1433,1521,2483,2484,3306,8008,8080,8443,7680,31339 -PA80,113,443,10042 -sn "$sub" | grep report | awk '{print $5" "$6}' > hosts.txt
-  sed -i -E 's/^(\S+)\s+.(.*).$/\2 /' hosts.txt
-  while read -r host; do
-    ip=$(echo "$host" | awk '{print $1}')
-    mkdir "$ip"
-    nmap -sS -sV "$ip" > "$ip/nmap.txt" 2>/dev/null &
-  done < hosts.txt
-  cd ..
-done < subnets
- 
-echo "Start scanning!"
- 
-cat ../index.template.html > ../index.html
-ybase=25
-while read -r sub; do
-  subStart=${sub%%/*}
-  cd "$subStart"
-  sort hosts.txt > hosts.tmp.txt && cp hosts.tmp.txt hosts.txt
- 
-  router=$(head -1 hosts.tmp.txt | xargs)
- 
-  lines=$(wc -l < hosts.tmp.txt)
-  ((lines -= 2))
- 
-  sed -i "s/$/ unknown Unknown/" hosts.txt && \
- 
-  while read -r ip; do
-    crack "$ip"
-  done < "hosts.tmp.txt"
- 
-  xbase=0
-  ycur=$ybase
- 
-  count=0
- 
-  while read -r ip hostname distro; do
-    fam="$(findFamily $distro)"
-    rollPasswd "$ip" "$fam" &
-    makeJSON "$ip" "$hostname" "$distro" > "$ip/data.json"
-    if [ "$ip" = "$router" ]; then
-      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, classes: \"router\", position: { x: 56, y: $((ycur-25)) } }," >> ../../index.html
+if [ -f users.txt ]; then
+  :
+else
+  printf "${HEADER}USERS${CLEAR}\n"
+  read -p "Enter default user: " user
+  while true; do
+    if [ "$user" = "done" ]; then
+      break
     else
-      echo "                { data: { id: \"$ip\", sub: \"$subStart\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> ../../index.html
-      echo "                { data: { id: \"connect_$ip\", source: \"$router\", target: \"$ip\" } }," >> ../../index.html
-      ((count += 1))
-      if [ "$count" -eq 8 ]; then
-        count=0
-        ((lines -= 8))
-        if ((lines < 8)); then
-          ((xbase=8*(7-lines)))
-        else
-          xbase=0
-        fi
-        ((ybase += 25))
-      else
-        ((xbase += 16))
-      fi
+      echo "$user" >> "$path/users.txt"
     fi
-  done < hosts.txt
-  cd ..
-  ((ybase += 10))
-done < subnets
-cd ..
+    read -p "Enter default user. [Type done to stop]: " user
+  done
+fi  
+
+if [ -f pass.txt ]; then
+  :
+else
+  printf "${HEADER}PASSWDS${CLEAR}\n"
+  read -p "Enter default password: " pass
+  while true; do
+    if [ "$pass" = "done" ]; then
+      break
+    else
+      echo "$pass" >> "$path/pass.txt"
+    fi
+    read -p "Enter default password. [Type done to stop]: " pass
+  done
+fi
+
+ipRegex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+subRegex='^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2])$'
+if [ -f ips.txt ]; then
+  :
+else
+  printf "${HEADER}IPS${CLEAR}\n"
+  read -p "Enter a IP or subnet to scan: " sub
+  while echo "$sub" | grep -q -E "$ipRegex|$subRegex"; do
+    echo "$sub" >> ips.txt
+    read -p "Enter a IP or subnet to scan. [Type done to stop]: " sub
+  done
+fi
+
+while read -r ip; do
+  if echo $ip | grep -q -E "$subRegex"; then
+    nmap -PR -PE -PP -PM -PO2 -PS21,22,23,25,80,110,113,135,137,143,443,445,691,993,995,1433,1521,2483,2484,3306,8008,8080,8443,7680,31339 -PA80,113,443,10042 -sn "$sub" | grep report | awk '{print $5}' >> Rips.txt
+  else
+    echo $ip >> Rips.txt
+  fi
+done < ips.txt
+
+sort -u Rips.txt > ips.txt
+sed -i -E 's/^(\S+)\s+.(.*).$/\2 /' ips.txt
+
+echo "Start scanning!"
+while read -r ip; do
+    mkdir "fun/$ip"
+    nmap -sS -sV "$ip" > "fun/$ip/nmap.txt" 2>/dev/null &
+done < ips.txt
+
+
+
+cat index.template.html > index.html
+ybase=25
+xbase=0
+lines=$(wc -l < ips.txt)
+while read -r ip; do
+  crack "$ip"
+  hostname="$(grep Name fun/$ip/info.txt | awk '{print $2}')"
+  distro="$(grep Distro fun/$ip/info.txt | awk '{print $2}')"
+  fam="$(findFamily $distro)"
+
+  if [ "$roll" = "true" ]; then
+    rollPasswd "$ip" "$fam" &
+  fi
+
+  makeJSON $ip > "fun/$ip/data.json"
+  
+  echo "                { data: { id: \"$ip\", sub: \"0.0.0.0\", label: \"$ip\n$hostname\", hostname: \"$hostname\", distro: \"$distro\", image: \"assets/$distro.png\" }, position: { x: $xbase, y: $ybase } }," >> index.html
+  count=$((count + 1))
+  if [ "$count" -eq 8 ]; then
+    count=0
+    lines=$((lines - 8))
+    if [ "$lines" -lt "8" ]; then
+      xbase=$((8*(7-lines)))
+    else
+      xbase=0
+    fi
+    ybase=$((ybase+25))
+  else
+    xbase=$((xbase+16))
+  fi
+done < ips.txt
+
 cat index.end.html >> index.html
 
-cp watcher ../Downloads
-cd ../Downloads
+cp watcher ~/Downloads
+cd ~/Downloads
 ./watcher
